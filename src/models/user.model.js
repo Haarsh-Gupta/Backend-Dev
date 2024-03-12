@@ -56,12 +56,16 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
+// this pre hook use to do somthing before doing something like save
+
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
   this.password = bcrypt.hash(this.password, 10);
   next();
 });
+
+// .methods is use to inject custom methods or functions
 
 userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
