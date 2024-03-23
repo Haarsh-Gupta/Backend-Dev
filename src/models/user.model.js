@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { emit } from "nodemon";
+// import { emit } from "nodemon";
 
 const userSchema = new Schema(
   {
@@ -30,7 +30,7 @@ const userSchema = new Schema(
 
     avatar: {
       type: String, // cloudinary url
-      required: [true, "Username is required"],
+      required: [true, "Avatar is required"],
     },
 
     coverImage: {
@@ -61,7 +61,7 @@ const userSchema = new Schema(
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
-  this.password = bcrypt.hash(this.password, 10);
+  this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
@@ -72,12 +72,12 @@ userSchema.methods.isPasswordCorrect = async function (password) {
 };
 
 userSchema.methods.generateAccessToken = function () {
-  jwt.sign(
+  return jwt.sign(
     {
       _id: this._id,
       email: this.email,
       username: this.username,
-      fullname: fullname,
+      fullName: this.fullName,
     },
     process.env.ACCESS_TOKEN_SECRET,
     {
@@ -85,9 +85,8 @@ userSchema.methods.generateAccessToken = function () {
     }
   );
 };
-
 userSchema.methods.generateRefreshToken = function () {
-  jwt.sign(
+  return jwt.sign(
     {
       _id: this._id,
     },
@@ -97,7 +96,5 @@ userSchema.methods.generateRefreshToken = function () {
     }
   );
 };
-
-userSchema.methods.generateRefrestToken = function () {};
 
 export const User = mongoose.model("User", userSchema);
