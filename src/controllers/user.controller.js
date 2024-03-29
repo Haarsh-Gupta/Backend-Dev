@@ -300,6 +300,8 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Error while uploading on avatar");
   }
 
+  const previousAvatarPath = req.user?.avatar;
+
   const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
